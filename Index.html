@@ -11,6 +11,8 @@
         .card { transition: all 0.2s; }
         .card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
         .badge { padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; }
+        .tab-active { background-color: #3b82f6; color: white; }
+        .tab-inactive { background-color: #e5e7eb; color: #374151; }
     </style>
 </head>
 <body>
@@ -77,11 +79,11 @@
                 <button id="adminUsersBtn" onclick="showSection('usuarios')" class="px-4 py-2 bg-indigo-100 hover:bg-indigo-200 rounded hidden">👥 Usuarios</button>
             </div>
 
-            <!-- SECCIONES (contenido dinámico) -->
+            <!-- ================= SECCIÓN VEHÍCULOS ================= -->
             <div id="sectionVehiculos" class="section-content bg-white p-6 rounded-lg shadow">
                 <h2 class="text-2xl font-bold mb-4">Gestión de Vehículos</h2>
                 <button onclick="mostrarFormulario('vehiculo')" class="bg-blue-600 text-white px-4 py-2 rounded mb-4">+ Agregar Vehículo</button>
-                <div id="vehiculosList"></div>
+                <div id="vehiculosList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 <div id="vehiculoForm" class="hidden mt-4 p-4 border rounded bg-gray-50">
                     <form onsubmit="guardarVehiculo(event)">
                         <input type="hidden" id="vehiculoId">
@@ -111,14 +113,110 @@
                 </div>
             </div>
 
-            <!-- Las demás secciones (Preventivos, Correctivos, Órdenes, Historial, Reportes, Alertas, Usuarios) se cargan dinámicamente -->
-            <div id="sectionPreventivos" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Preventivos</h2><div id="preventivosList"></div></div>
-            <div id="sectionCorrectivos" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Correctivos</h2><div id="correctivosList"></div></div>
-            <div id="sectionOrdenes" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Órdenes</h2><div id="ordenesList"></div></div>
-            <div id="sectionHistorial" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Historial</h2><div id="historialContent"></div></div>
-            <div id="sectionReportes" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Reportes</h2><div id="reportesContent"></div></div>
-            <div id="sectionAlertas" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Alertas</h2><div id="alertasList"></div></div>
-            <div id="sectionUsuarios" class="section-content bg-white p-6 rounded-lg shadow hidden"><h2 class="text-2xl font-bold mb-4">Usuarios</h2><div id="usuariosList"></div></div>
+            <!-- ================= SECCIÓN PREVENTIVOS ================= -->
+            <div id="sectionPreventivos" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">Mantenimiento Preventivo</h2>
+                <button onclick="mostrarFormulario('preventivo')" class="bg-green-600 text-white px-4 py-2 rounded mb-4">+ Programar Preventivo</button>
+                <div id="preventivosList"></div>
+                <div id="preventivoForm" class="hidden mt-4 p-4 border rounded bg-gray-50">
+                    <form onsubmit="guardarPreventivo(event)">
+                        <input type="hidden" id="prevId">
+                        <select id="prevVehiculo" required class="border p-2 rounded w-full mb-2"><option value="">Vehículo</option></select>
+                        <select id="prevTipo" required class="border p-2 rounded w-full mb-2"><option value="">Tipo de Mantenimiento</option></select>
+                        <input type="date" id="prevFecha" class="border p-2 rounded w-full mb-2">
+                        <input type="number" id="prevKm" placeholder="Kilometraje programado" class="border p-2 rounded w-full mb-2">
+                        <select id="prevEstado" class="border p-2 rounded w-full mb-2">
+                            <option value="pendiente">Pendiente</option>
+                            <option value="en_proceso">En Proceso</option>
+                            <option value="completado">Completado</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                        <textarea id="prevObs" placeholder="Observaciones" class="border p-2 rounded w-full mb-2"></textarea>
+                        <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Guardar</button>
+                        <button type="button" onclick="ocultarFormulario('preventivo')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ================= SECCIÓN CORRECTIVOS ================= -->
+            <div id="sectionCorrectivos" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">Mantenimiento Correctivo</h2>
+                <button onclick="mostrarFormulario('correctivo')" class="bg-yellow-600 text-white px-4 py-2 rounded mb-4">+ Reportar Avería</button>
+                <div id="correctivosList"></div>
+                <div id="correctivoForm" class="hidden mt-4 p-4 border rounded bg-gray-50">
+                    <form onsubmit="guardarCorrectivo(event)">
+                        <input type="hidden" id="corrId">
+                        <select id="corrVehiculo" required class="border p-2 rounded w-full mb-2"><option value="">Vehículo</option></select>
+                        <input type="date" id="corrFecha" required class="border p-2 rounded w-full mb-2">
+                        <input type="number" id="corrKm" placeholder="Kilometraje" class="border p-2 rounded w-full mb-2">
+                        <select id="corrTipoAveria" required class="border p-2 rounded w-full mb-2"><option value="">Tipo de Avería</option></select>
+                        <textarea id="corrDescFalla" placeholder="Descripción de la falla" required class="border p-2 rounded w-full mb-2"></textarea>
+                        <textarea id="corrDiagnostico" placeholder="Diagnóstico" class="border p-2 rounded w-full mb-2"></textarea>
+                        <textarea id="corrSolucion" placeholder="Solución aplicada" class="border p-2 rounded w-full mb-2"></textarea>
+                        <input type="number" id="corrCosto" placeholder="Costo de reparación" step="0.01" class="border p-2 rounded w-full mb-2">
+                        <select id="corrEstado" class="border p-2 rounded w-full mb-2">
+                            <option value="reportado">Reportado</option>
+                            <option value="en_reparacion">En Reparación</option>
+                            <option value="solucionado">Solucionado</option>
+                            <option value="cancelado">Cancelado</option>
+                        </select>
+                        <button type="submit" class="bg-yellow-600 text-white px-4 py-2 rounded">Guardar</button>
+                        <button type="button" onclick="ocultarFormulario('correctivo')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ================= SECCIÓN ÓRDENES ================= -->
+            <div id="sectionOrdenes" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">Órdenes de Trabajo</h2>
+                <div id="ordenesList"></div>
+            </div>
+
+            <!-- ================= SECCIÓN HISTORIAL ================= -->
+            <div id="sectionHistorial" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">Historial de Mantenimiento</h2>
+                <select id="historialVehiculo" class="border p-2 rounded w-full mb-4"><option value="">Seleccionar vehículo</option></select>
+                <div id="historialContent"></div>
+            </div>
+
+            <!-- ================= SECCIÓN REPORTES ================= -->
+            <div id="sectionReportes" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">📊 Reportes y Estadísticas</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="p-4 border rounded"><h3 class="font-bold">Fallas por Vehículo</h3><div id="reporteFallas" class="text-sm"></div></div>
+                    <div class="p-4 border rounded"><h3 class="font-bold">Costos por Vehículo</h3><div id="reporteCostos" class="text-sm"></div></div>
+                    <div class="p-4 border rounded"><h3 class="font-bold">Cumplimiento Preventivos</h3><div id="reporteCumplimiento" class="text-sm"></div></div>
+                    <div class="p-4 border rounded"><h3 class="font-bold">Disponibilidad de Flota</h3><div id="reporteDisponibilidad" class="text-sm"></div></div>
+                </div>
+            </div>
+
+            <!-- ================= SECCIÓN ALERTAS ================= -->
+            <div id="sectionAlertas" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">🔔 Alertas</h2>
+                <div id="alertasList"></div>
+            </div>
+
+            <!-- ================= SECCIÓN USUARIOS ================= -->
+            <div id="sectionUsuarios" class="section-content bg-white p-6 rounded-lg shadow hidden">
+                <h2 class="text-2xl font-bold mb-4">👥 Gestión de Usuarios</h2>
+                <button onclick="mostrarFormulario('usuario')" class="bg-indigo-600 text-white px-4 py-2 rounded mb-4">+ Crear Usuario</button>
+                <div id="usuariosList"></div>
+                <div id="usuarioForm" class="hidden mt-4 p-4 border rounded bg-gray-50">
+                    <form onsubmit="guardarUsuario(event)">
+                        <input type="text" id="uNombre" placeholder="Nombre" required class="border p-2 rounded w-full mb-2">
+                        <input type="email" id="uEmail" placeholder="Email" required class="border p-2 rounded w-full mb-2">
+                        <input type="password" id="uPass" placeholder="Contraseña" required class="border p-2 rounded w-full mb-2">
+                        <select id="uRol" class="border p-2 rounded w-full mb-2">
+                            <option value="admin">Admin</option>
+                            <option value="jefe">Jefe</option>
+                            <option value="tecnico">Técnico</option>
+                            <option value="supervisor">Supervisor</option>
+                        </select>
+                        <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded">Guardar</button>
+                        <button type="button" onclick="ocultarFormulario('usuario')" class="bg-gray-400 text-white px-4 py-2 rounded">Cancelar</button>
+                    </form>
+                </div>
+            </div>
         </div>
     </main>
     <footer class="bg-white shadow-inner p-4 text-center text-gray-500 text-sm">TRANSNUPERSA S.A. - Gestión de Mantenimiento</footer>
@@ -137,17 +235,16 @@ function initLocalStorage() {
         localStorage.setItem('usuarios', JSON.stringify(usuarios));
     }
     if (!localStorage.getItem('vehiculos')) {
-        localStorage.setItem('vehiculos', JSON.stringify([]));
+        const vehiculos = [
+            { id: 1, placa: 'PBA-1234', marca: 'Hino', modelo: '700', año: 2020, chasis: 'ABC123', motor: 'Diesel', tipo: 'Carga', capacidad: 25, combustible: 'Diesel', kilometraje: 95000, fecha_adquisicion: '2020-05-10', estado: 'activo', conductor: 'Juan Pérez', observaciones: '' },
+            { id: 2, placa: 'PBA-5678', marca: 'Scania', modelo: 'R500', año: 2021, chasis: 'DEF456', motor: 'Diesel', tipo: 'Carga', capacidad: 30, combustible: 'Diesel', kilometraje: 45000, fecha_adquisicion: '2021-08-15', estado: 'activo', conductor: 'Carlos Gómez', observaciones: '' }
+        ];
+        localStorage.setItem('vehiculos', JSON.stringify(vehiculos));
     }
-    if (!localStorage.getItem('preventivos')) {
-        localStorage.setItem('preventivos', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('correctivos')) {
-        localStorage.setItem('correctivos', JSON.stringify([]));
-    }
-    if (!localStorage.getItem('ordenes')) {
-        localStorage.setItem('ordenes', JSON.stringify([]));
-    }
+    if (!localStorage.getItem('preventivos')) localStorage.setItem('preventivos', JSON.stringify([]));
+    if (!localStorage.getItem('correctivos')) localStorage.setItem('correctivos', JSON.stringify([]));
+    if (!localStorage.getItem('ordenes')) localStorage.setItem('ordenes', JSON.stringify([]));
+    
     if (!localStorage.getItem('tipos_mantenimiento')) {
         const tipos = [
             { id: 1, codigo: 'MT001', nombre: 'Cambio de aceite', periodicidad_km: 15000, periodicidad_dias: 180 },
@@ -168,7 +265,7 @@ function initLocalStorage() {
         localStorage.setItem('tipos_averia', JSON.stringify(averias));
     }
     if (!localStorage.getItem('nextIds')) {
-        localStorage.setItem('nextIds', JSON.stringify({ vehiculo: 1, preventivo: 1, correctivo: 1, orden: 1 }));
+        localStorage.setItem('nextIds', JSON.stringify({ vehiculo: 3, preventivo: 1, correctivo: 1, orden: 1 }));
     }
 }
 initLocalStorage();
@@ -186,6 +283,33 @@ function getNextId(tipo) {
     return id;
 }
 
+// Obtener nombre de vehículo por ID
+function getVehiculoNombre(id) {
+    const vehiculos = getData('vehiculos');
+    const v = vehiculos.find(v => v.id === id);
+    return v ? v.placa : 'N/A';
+}
+function getVehiculoKm(id) {
+    const vehiculos = getData('vehiculos');
+    const v = vehiculos.find(v => v.id === id);
+    return v ? v.kilometraje : 0;
+}
+function getTipoMantenimientoNombre(id) {
+    const tipos = getData('tipos_mantenimiento');
+    const t = tipos.find(t => t.id === id);
+    return t ? t.nombre : 'N/A';
+}
+function getTipoAveriaNombre(id) {
+    const averias = getData('tipos_averia');
+    const a = averias.find(a => a.id === id);
+    return a ? a.nombre : 'N/A';
+}
+function getUsuarioNombre(id) {
+    const usuarios = getData('usuarios');
+    const u = usuarios.find(u => u.id === id);
+    return u ? u.nombre : 'Sin asignar';
+}
+
 // ============================================================
 // 3. AUTENTICACIÓN
 // ============================================================
@@ -197,10 +321,7 @@ function login(e) {
     const password = document.getElementById('loginPassword').value;
     const usuarios = getData('usuarios');
     const user = usuarios.find(u => u.email === email && u.password === password);
-    if (!user) {
-        alert('Email o contraseña incorrectos');
-        return;
-    }
+    if (!user) { alert('Email o contraseña incorrectos'); return; }
     currentUser = user;
     document.getElementById('authButtons').classList.add('hidden');
     document.getElementById('userInfo').classList.remove('hidden');
@@ -221,10 +342,7 @@ function register(e) {
     const password = document.getElementById('regPassword').value;
     const rol = document.getElementById('regRol').value;
     const usuarios = getData('usuarios');
-    if (usuarios.find(u => u.email === email)) {
-        alert('Este email ya está registrado');
-        return;
-    }
+    if (usuarios.find(u => u.email === email)) { alert('Este email ya está registrado'); return; }
     const newUser = { id: usuarios.length + 1, email, nombre, rol, password };
     usuarios.push(newUser);
     setData('usuarios', usuarios);
@@ -266,18 +384,19 @@ function showSection(section) {
         usuarios: 'sectionUsuarios'
     };
     document.getElementById(map[section]).classList.remove('hidden');
+    // Cargar datos según sección
     if (section === 'vehiculos') cargarVehiculos();
-    if (section === 'preventivos') cargarPreventivos();
-    if (section === 'correctivos') cargarCorrectivos();
+    if (section === 'preventivos') { cargarSelectsPreventivos(); cargarPreventivos(); }
+    if (section === 'correctivos') { cargarSelectsCorrectivos(); cargarCorrectivos(); }
     if (section === 'ordenes') cargarOrdenes();
-    if (section === 'historial') cargarHistorial();
+    if (section === 'historial') { cargarSelectsHistorial(); }
     if (section === 'reportes') cargarReportes();
     if (section === 'alertas') cargarAlertas();
     if (section === 'usuarios') cargarUsuarios();
 }
 
 // ============================================================
-// 5. CRUD VEHÍCULOS
+// 5. GESTIÓN DE VEHÍCULOS (CRUD)
 // ============================================================
 function cargarVehiculos() {
     const data = getData('vehiculos');
@@ -286,7 +405,7 @@ function cargarVehiculos() {
         container.innerHTML = '<p class="text-gray-500">No hay vehículos registrados.</p>';
         return;
     }
-    let html = '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">';
+    let html = '';
     data.forEach(v => {
         html += `<div class="card bg-gray-50 p-4 rounded-lg border">
             <h3 class="font-bold">${v.placa} - ${v.marca} ${v.modelo}</h3>
@@ -297,7 +416,6 @@ function cargarVehiculos() {
             </div>
         </div>`;
     });
-    html += '</div>';
     container.innerHTML = html;
 }
 
@@ -314,7 +432,7 @@ function guardarVehiculo(e) {
         tipo: document.getElementById('vTipo').value || '',
         capacidad: document.getElementById('vCapacidad').value || null,
         combustible: document.getElementById('vCombustible').value || '',
-        kilometraje: document.getElementById('vKilometraje').value || 0,
+        kilometraje: parseInt(document.getElementById('vKilometraje').value) || 0,
         fecha_adquisicion: document.getElementById('vFechaAdq').value || '',
         estado: document.getElementById('vEstado').value,
         conductor: document.getElementById('vConductor').value || '',
@@ -364,42 +482,545 @@ function eliminarVehiculo(id) {
 }
 
 // ============================================================
-// 6. FUNCIONES PARA FORMULARIOS
+// 6. GESTIÓN DE PREVENTIVOS
 // ============================================================
-function mostrarFormulario(tipo) {
-    const map = { vehiculo: 'vehiculoForm' };
-    document.getElementById(map[tipo]).classList.remove('hidden');
-    if (tipo === 'vehiculo') document.getElementById('vehiculoId').value = '';
+function cargarSelectsPreventivos() {
+    const vehiculos = getData('vehiculos');
+    const tipos = getData('tipos_mantenimiento');
+    
+    const selVehi = document.getElementById('prevVehiculo');
+    selVehi.innerHTML = '<option value="">Seleccionar vehículo</option>';
+    vehiculos.forEach(v => selVehi.innerHTML += `<option value="${v.id}">${v.placa}</option>`);
+
+    const selTipo = document.getElementById('prevTipo');
+    selTipo.innerHTML = '<option value="">Seleccionar tipo</option>';
+    tipos.forEach(t => selTipo.innerHTML += `<option value="${t.id}">${t.nombre}</option>`);
 }
-function ocultarFormulario(tipo) {
-    const map = { vehiculo: 'vehiculoForm' };
-    document.getElementById(map[tipo]).classList.add('hidden');
+
+function cargarPreventivos() {
+    const data = getData('preventivos');
+    const container = document.getElementById('preventivosList');
+    if (data.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No hay mantenimientos preventivos.</p>';
+        return;
+    }
+    let html = '<div class="space-y-2">';
+    data.forEach(p => {
+        const estadoColor = p.estado === 'pendiente' ? 'bg-yellow-200' : p.estado === 'completado' ? 'bg-green-200' : 'bg-gray-200';
+        html += `<div class="border p-3 rounded flex justify-between items-center">
+            <div><strong>${getVehiculoNombre(p.vehiculo_id)}</strong> - ${getTipoMantenimientoNombre(p.tipo_mantenimiento_id)}
+            <br><span class="text-sm">Fecha: ${p.fecha_programada || 'N/A'} | Km: ${p.kilometraje_programado || 'N/A'}</span>
+            <span class="badge ${estadoColor}">${p.estado}</span></div>
+            <div>
+                <button onclick="editarPreventivo(${p.id})" class="text-blue-600 text-sm">Editar</button>
+                <button onclick="eliminarPreventivo(${p.id})" class="text-red-600 text-sm ml-2">Eliminar</button>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function guardarPreventivo(e) {
+    e.preventDefault();
+    const id = document.getElementById('prevId').value;
+    const data = {
+        vehiculo_id: parseInt(document.getElementById('prevVehiculo').value),
+        tipo_mantenimiento_id: parseInt(document.getElementById('prevTipo').value),
+        fecha_programada: document.getElementById('prevFecha').value || null,
+        kilometraje_programado: parseInt(document.getElementById('prevKm').value) || null,
+        estado: document.getElementById('prevEstado').value,
+        observaciones: document.getElementById('prevObs').value || ''
+    };
+    let preventivos = getData('preventivos');
+    if (id) {
+        const index = preventivos.findIndex(p => p.id == id);
+        if (index !== -1) preventivos[index] = { ...preventivos[index], ...data };
+    } else {
+        data.id = getNextId('preventivo');
+        data.fecha_creacion = new Date().toISOString().split('T')[0];
+        preventivos.push(data);
+        // Generar orden de trabajo automática
+        const orden = {
+            id: getNextId('orden'),
+            tipo: 'preventivo',
+            referencia_id: data.id,
+            fecha_creacion: data.fecha_creacion,
+            tecnico_asignado_id: null,
+            estado: 'pendiente',
+            costo_total: 0,
+            observaciones: 'Generada automáticamente por preventivo'
+        };
+        let ordenes = getData('ordenes');
+        ordenes.push(orden);
+        setData('ordenes', ordenes);
+    }
+    setData('preventivos', preventivos);
+    ocultarFormulario('preventivo');
+    cargarPreventivos();
+}
+
+function editarPreventivo(id) {
+    const preventivos = getData('preventivos');
+    const p = preventivos.find(p => p.id === id);
+    if (!p) return;
+    document.getElementById('prevId').value = p.id;
+    document.getElementById('prevVehiculo').value = p.vehiculo_id;
+    document.getElementById('prevTipo').value = p.tipo_mantenimiento_id;
+    document.getElementById('prevFecha').value = p.fecha_programada || '';
+    document.getElementById('prevKm').value = p.kilometraje_programado || '';
+    document.getElementById('prevEstado').value = p.estado;
+    document.getElementById('prevObs').value = p.observaciones || '';
+    document.getElementById('preventivoForm').classList.remove('hidden');
+}
+
+function eliminarPreventivo(id) {
+    if (!confirm('¿Eliminar este mantenimiento?')) return;
+    let preventivos = getData('preventivos');
+    preventivos = preventivos.filter(p => p.id !== id);
+    setData('preventivos', preventivos);
+    // Eliminar orden asociada
+    let ordenes = getData('ordenes');
+    ordenes = ordenes.filter(o => !(o.tipo === 'preventivo' && o.referencia_id === id));
+    setData('ordenes', ordenes);
+    cargarPreventivos();
 }
 
 // ============================================================
-// 7. CARGAR TODOS LOS DATOS (INICIAL)
+// 7. GESTIÓN DE CORRECTIVOS
+// ============================================================
+function cargarSelectsCorrectivos() {
+    const vehiculos = getData('vehiculos');
+    const averias = getData('tipos_averia');
+    
+    const selVehi = document.getElementById('corrVehiculo');
+    selVehi.innerHTML = '<option value="">Seleccionar vehículo</option>';
+    vehiculos.forEach(v => selVehi.innerHTML += `<option value="${v.id}">${v.placa}</option>`);
+
+    const selAve = document.getElementById('corrTipoAveria');
+    selAve.innerHTML = '<option value="">Seleccionar avería</option>';
+    averias.forEach(a => selAve.innerHTML += `<option value="${a.id}">${a.nombre}</option>`);
+}
+
+function cargarCorrectivos() {
+    const data = getData('correctivos');
+    const container = document.getElementById('correctivosList');
+    if (data.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No hay averías reportadas.</p>';
+        return;
+    }
+    let html = '<div class="space-y-2">';
+    data.forEach(c => {
+        const estadoColor = c.estado === 'reportado' ? 'bg-red-200' : c.estado === 'solucionado' ? 'bg-green-200' : 'bg-yellow-200';
+        html += `<div class="border p-3 rounded">
+            <div class="flex justify-between"><strong>${getVehiculoNombre(c.vehiculo_id)}</strong> - ${getTipoAveriaNombre(c.tipo_averia_id)} <span class="badge ${estadoColor}">${c.estado}</span></div>
+            <p class="text-sm">${c.descripcion_falla || ''}</p>
+            <p class="text-sm text-gray-500">Costo: $${c.costo || 0} | Fecha: ${c.fecha_reporte || ''}</p>
+            <div>
+                <button onclick="editarCorrectivo(${c.id})" class="text-blue-600 text-sm">Editar</button>
+                <button onclick="eliminarCorrectivo(${c.id})" class="text-red-600 text-sm ml-2">Eliminar</button>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function guardarCorrectivo(e) {
+    e.preventDefault();
+    const id = document.getElementById('corrId').value;
+    const data = {
+        vehiculo_id: parseInt(document.getElementById('corrVehiculo').value),
+        fecha_reporte: document.getElementById('corrFecha').value,
+        kilometraje_reporte: parseInt(document.getElementById('corrKm').value) || null,
+        tipo_averia_id: parseInt(document.getElementById('corrTipoAveria').value),
+        descripcion_falla: document.getElementById('corrDescFalla').value,
+        diagnostico: document.getElementById('corrDiagnostico').value || '',
+        solucion: document.getElementById('corrSolucion').value || '',
+        costo: parseFloat(document.getElementById('corrCosto').value) || 0,
+        estado: document.getElementById('corrEstado').value,
+        observaciones: ''
+    };
+    let correctivos = getData('correctivos');
+    if (id) {
+        const index = correctivos.findIndex(c => c.id == id);
+        if (index !== -1) correctivos[index] = { ...correctivos[index], ...data };
+    } else {
+        data.id = getNextId('correctivo');
+        correctivos.push(data);
+        // Generar orden de trabajo automática
+        const orden = {
+            id: getNextId('orden'),
+            tipo: 'correctivo',
+            referencia_id: data.id,
+            fecha_creacion: data.fecha_reporte,
+            tecnico_asignado_id: null,
+            estado: 'pendiente',
+            costo_total: data.costo || 0,
+            observaciones: 'Generada automáticamente por correctivo'
+        };
+        let ordenes = getData('ordenes');
+        ordenes.push(orden);
+        setData('ordenes', ordenes);
+    }
+    setData('correctivos', correctivos);
+    ocultarFormulario('correctivo');
+    cargarCorrectivos();
+}
+
+function editarCorrectivo(id) {
+    const correctivos = getData('correctivos');
+    const c = correctivos.find(c => c.id === id);
+    if (!c) return;
+    document.getElementById('corrId').value = c.id;
+    document.getElementById('corrVehiculo').value = c.vehiculo_id;
+    document.getElementById('corrFecha').value = c.fecha_reporte || '';
+    document.getElementById('corrKm').value = c.kilometraje_reporte || '';
+    document.getElementById('corrTipoAveria').value = c.tipo_averia_id || '';
+    document.getElementById('corrDescFalla').value = c.descripcion_falla || '';
+    document.getElementById('corrDiagnostico').value = c.diagnostico || '';
+    document.getElementById('corrSolucion').value = c.solucion || '';
+    document.getElementById('corrCosto').value = c.costo || '';
+    document.getElementById('corrEstado').value = c.estado;
+    document.getElementById('correctivoForm').classList.remove('hidden');
+}
+
+function eliminarCorrectivo(id) {
+    if (!confirm('¿Eliminar este correctivo?')) return;
+    let correctivos = getData('correctivos');
+    correctivos = correctivos.filter(c => c.id !== id);
+    setData('correctivos', correctivos);
+    let ordenes = getData('ordenes');
+    ordenes = ordenes.filter(o => !(o.tipo === 'correctivo' && o.referencia_id === id));
+    setData('ordenes', ordenes);
+    cargarCorrectivos();
+}
+
+// ============================================================
+// 8. ÓRDENES DE TRABAJO
+// ============================================================
+function cargarOrdenes() {
+    const data = getData('ordenes');
+    const usuarios = getData('usuarios');
+    const container = document.getElementById('ordenesList');
+    if (data.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">No hay órdenes de trabajo.</p>';
+        return;
+    }
+    let html = '<div class="space-y-2">';
+    data.forEach(o => {
+        const estadoColor = o.estado === 'pendiente' ? 'bg-yellow-200' : o.estado === 'en_progreso' ? 'bg-blue-200' : 'bg-green-200';
+        const tecnico = usuarios.find(u => u.id === o.tecnico_asignado_id);
+        html += `<div class="border p-3 rounded">
+            <div class="flex justify-between"><strong>Orden #${o.id}</strong> - Tipo: ${o.tipo} <span class="badge ${estadoColor}">${o.estado}</span></div>
+            <p class="text-sm">Técnico: ${tecnico ? tecnico.nombre : 'Sin asignar'} | Costo: $${o.costo_total || 0}</p>
+            <div class="mt-2 flex gap-2 flex-wrap">
+                <select id="asignarTec_${o.id}" class="border p-1 rounded text-sm">
+                    <option value="">Asignar...</option>
+                    ${usuarios.filter(u => u.rol === 'tecnico').map(u => `<option value="${u.id}" ${o.tecnico_asignado_id === u.id ? 'selected' : ''}>${u.nombre}</option>`).join('')}
+                </select>
+                <button onclick="asignarOrden(${o.id})" class="bg-blue-500 text-white px-2 py-1 rounded text-sm">Asignar</button>
+                <select id="estadoOrden_${o.id}" class="border p-1 rounded text-sm">
+                    <option value="pendiente" ${o.estado === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                    <option value="en_progreso" ${o.estado === 'en_progreso' ? 'selected' : ''}>En Progreso</option>
+                    <option value="finalizado" ${o.estado === 'finalizado' ? 'selected' : ''}>Finalizado</option>
+                </select>
+                <button onclick="cambiarEstadoOrden(${o.id})" class="bg-green-500 text-white px-2 py-1 rounded text-sm">Cambiar Estado</button>
+                <button onclick="eliminarOrden(${o.id})" class="bg-red-500 text-white px-2 py-1 rounded text-sm">Eliminar</button>
+            </div>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function asignarOrden(id) {
+    const select = document.getElementById(`asignarTec_${id}`);
+    const tecnicoId = parseInt(select.value);
+    if (!tecnicoId) { alert('Selecciona un técnico'); return; }
+    let ordenes = getData('ordenes');
+    const index = ordenes.findIndex(o => o.id === id);
+    if (index !== -1) {
+        ordenes[index].tecnico_asignado_id = tecnicoId;
+        setData('ordenes', ordenes);
+        cargarOrdenes();
+    }
+}
+
+function cambiarEstadoOrden(id) {
+    const select = document.getElementById(`estadoOrden_${id}`);
+    const estado = select.value;
+    let ordenes = getData('ordenes');
+    const index = ordenes.findIndex(o => o.id === id);
+    if (index !== -1) {
+        ordenes[index].estado = estado;
+        if (estado === 'finalizado') {
+            ordenes[index].fecha_fin = new Date().toISOString().split('T')[0];
+        }
+        setData('ordenes', ordenes);
+        cargarOrdenes();
+    }
+}
+
+function eliminarOrden(id) {
+    if (!confirm('¿Eliminar esta orden?')) return;
+    let ordenes = getData('ordenes');
+    ordenes = ordenes.filter(o => o.id !== id);
+    setData('ordenes', ordenes);
+    cargarOrdenes();
+}
+
+// ============================================================
+// 9. HISTORIAL
+// ============================================================
+function cargarSelectsHistorial() {
+    const vehiculos = getData('vehiculos');
+    const sel = document.getElementById('historialVehiculo');
+    sel.innerHTML = '<option value="">Seleccionar vehículo</option>';
+    vehiculos.forEach(v => sel.innerHTML += `<option value="${v.id}">${v.placa}</option>`);
+    sel.onchange = cargarHistorial;
+}
+
+function cargarHistorial() {
+    const vehiculoId = parseInt(document.getElementById('historialVehiculo').value);
+    const container = document.getElementById('historialContent');
+    if (!vehiculoId) {
+        container.innerHTML = '<p class="text-gray-500">Selecciona un vehículo para ver su historial.</p>';
+        return;
+    }
+    const preventivos = getData('preventivos').filter(p => p.vehiculo_id === vehiculoId);
+    const correctivos = getData('correctivos').filter(c => c.vehiculo_id === vehiculoId);
+    
+    if (preventivos.length === 0 && correctivos.length === 0) {
+        container.innerHTML = '<p class="text-gray-500">Este vehículo no tiene historial.</p>';
+        return;
+    }
+
+    // Combinar y ordenar por fecha
+    let historial = [];
+    preventivos.forEach(p => {
+        historial.push({
+            fecha: p.fecha_programada || p.fecha_creacion || 'N/A',
+            tipo: 'Preventivo',
+            trabajo: getTipoMantenimientoNombre(p.tipo_mantenimiento_id),
+            costo: 'N/A',
+            estado: p.estado,
+            km: p.kilometraje_programado || 'N/A'
+        });
+    });
+    correctivos.forEach(c => {
+        historial.push({
+            fecha: c.fecha_reporte || 'N/A',
+            tipo: 'Correctivo',
+            trabajo: getTipoAveriaNombre(c.tipo_averia_id) + ': ' + (c.descripcion_falla || ''),
+            costo: '$' + (c.costo || 0),
+            estado: c.estado,
+            km: c.kilometraje_reporte || 'N/A'
+        });
+    });
+    historial.sort((a, b) => (a.fecha > b.fecha ? -1 : 1));
+
+    let html = `<table class="w-full text-sm"><thead><tr class="bg-gray-100"><th>Fecha</th><th>Tipo</th><th>Trabajo</th><th>Costo</th><th>Estado</th><th>Km</th></tr></thead><tbody>`;
+    historial.forEach(h => {
+        html += `<tr><td>${h.fecha}</td><td><span class="badge ${h.tipo === 'Preventivo' ? 'bg-green-200' : 'bg-yellow-200'}">${h.tipo}</span></td><td>${h.trabajo}</td><td>${h.costo}</td><td>${h.estado}</td><td>${h.km}</td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+// ============================================================
+// 10. REPORTES
+// ============================================================
+function cargarReportes() {
+    const vehiculos = getData('vehiculos');
+    const preventivos = getData('preventivos');
+    const correctivos = getData('correctivos');
+    
+    // Fallas por vehículo
+    let fallasHtml = '<ul>';
+    vehiculos.forEach(v => {
+        const count = correctivos.filter(c => c.vehiculo_id === v.id).length;
+        if (count > 0) fallasHtml += `<li>${v.placa}: ${count} fallas</li>`;
+    });
+    fallasHtml += '</ul>';
+    document.getElementById('reporteFallas').innerHTML = fallasHtml || '<p>Sin fallas registradas.</p>';
+
+    // Costos por vehículo
+    let costosHtml = '<ul>';
+    vehiculos.forEach(v => {
+        const total = correctivos.filter(c => c.vehiculo_id === v.id).reduce((sum, c) => sum + (c.costo || 0), 0);
+        if (total > 0) costosHtml += `<li>${v.placa}: $${total.toFixed(2)}</li>`;
+    });
+    costosHtml += '</ul>';
+    document.getElementById('reporteCostos').innerHTML = costosHtml || '<p>Sin costos registrados.</p>';
+
+    // Cumplimiento preventivos
+    const totalPrev = preventivos.length;
+    const completados = preventivos.filter(p => p.estado === 'completado').length;
+    const cumplimiento = totalPrev > 0 ? Math.round((completados / totalPrev) * 100) : 0;
+    document.getElementById('reporteCumplimiento').innerHTML = `<p>Programados: ${totalPrev}</p><p>Completados: ${completados}</p><p>Cumplimiento: ${cumplimiento}%</p>`;
+
+    // Disponibilidad
+    const activos = vehiculos.filter(v => v.estado === 'activo').length;
+    const mantenimiento = vehiculos.filter(v => v.estado === 'mantenimiento').length;
+    const fuera = vehiculos.filter(v => v.estado === 'fuera_servicio').length;
+    document.getElementById('reporteDisponibilidad').innerHTML = `<p>Activos: ${activos}</p><p>En mantenimiento: ${mantenimiento}</p><p>Fuera de servicio: ${fuera}</p>`;
+}
+
+// ============================================================
+// 11. ALERTAS
+// ============================================================
+function cargarAlertas() {
+    const container = document.getElementById('alertasList');
+    const hoy = new Date();
+    const dentro7dias = new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const hoyStr = hoy.toISOString().split('T')[0];
+    const semanaStr = dentro7dias.toISOString().split('T')[0];
+
+    const preventivos = getData('preventivos');
+    const proximos = preventivos.filter(p => 
+        p.estado === 'pendiente' && 
+        p.fecha_programada && 
+        p.fecha_programada >= hoyStr && 
+        p.fecha_programada <= semanaStr
+    );
+    const vencidos = preventivos.filter(p => 
+        p.estado === 'pendiente' && 
+        p.fecha_programada && 
+        p.fecha_programada < hoyStr
+    );
+    const correctivosPendientes = getData('correctivos').filter(c => c.estado === 'reportado' || c.estado === 'en_reparacion');
+
+    let html = '';
+    html += `<div class="mb-4"><h3 class="font-bold text-yellow-600">⏳ Próximos mantenimientos (7 días)</h3>`;
+    if (proximos.length === 0) html += '<p class="text-sm text-gray-500">No hay mantenimientos próximos.</p>';
+    else proximos.forEach(p => html += `<p class="text-sm">🔔 ${getVehiculoNombre(p.vehiculo_id)} - ${p.fecha_programada} (${p.kilometraje_programado || 'N/A'} km)</p>`);
+    html += `</div>`;
+
+    html += `<div class="mb-4"><h3 class="font-bold text-red-600">⚠️ Vencidos</h3>`;
+    if (vencidos.length === 0) html += '<p class="text-sm text-gray-500">No hay mantenimientos vencidos.</p>';
+    else vencidos.forEach(p => html += `<p class="text-sm">❌ ${getVehiculoNombre(p.vehiculo_id)} - vencido desde ${p.fecha_programada}</p>`);
+    html += `</div>`;
+
+    html += `<div><h3 class="font-bold text-orange-600">🛠️ Averías activas</h3>`;
+    if (correctivosPendientes.length === 0) html += '<p class="text-sm text-gray-500">No hay averías activas.</p>';
+    else correctivosPendientes.forEach(c => html += `<p class="text-sm">🚨 ${getVehiculoNombre(c.vehiculo_id)} - ${getTipoAveriaNombre(c.tipo_averia_id)} (${c.estado})</p>`);
+    html += `</div>`;
+
+    container.innerHTML = html;
+}
+
+// ============================================================
+// 12. USUARIOS (solo admin)
+// ============================================================
+function cargarUsuarios() {
+    const data = getData('usuarios');
+    const container = document.getElementById('usuariosList');
+    let html = '<table class="w-full text-sm"><thead><tr class="bg-gray-100"><th>Email</th><th>Nombre</th><th>Rol</th><th>Acción</th></tr></thead><tbody>';
+    data.forEach(u => {
+        html += `<tr><td>${u.email}</td><td>${u.nombre}</td><td>${u.rol}</td>
+            <td><button onclick="eliminarUsuario(${u.id})" class="text-red-600">Eliminar</button></td></tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function guardarUsuario(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('uNombre').value;
+    const email = document.getElementById('uEmail').value;
+    const password = document.getElementById('uPass').value;
+    const rol = document.getElementById('uRol').value;
+    const usuarios = getData('usuarios');
+    if (usuarios.find(u => u.email === email)) { alert('Email ya existe'); return; }
+    usuarios.push({ id: usuarios.length + 1, email, nombre, rol, password });
+    setData('usuarios', usuarios);
+    ocultarFormulario('usuario');
+    cargarUsuarios();
+    alert('Usuario creado exitosamente');
+}
+
+function eliminarUsuario(id) {
+    if (!confirm('¿Eliminar este usuario?')) return;
+    let usuarios = getData('usuarios');
+    usuarios = usuarios.filter(u => u.id !== id);
+    setData('usuarios', usuarios);
+    cargarUsuarios();
+}
+
+// ============================================================
+// 13. FUNCIONES PARA FORMULARIOS (genéricas)
+// ============================================================
+function mostrarFormulario(tipo) {
+    const map = {
+        vehiculo: 'vehiculoForm',
+        preventivo: 'preventivoForm',
+        correctivo: 'correctivoForm',
+        usuario: 'usuarioForm'
+    };
+    const el = document.getElementById(map[tipo]);
+    if (el) el.classList.remove('hidden');
+    if (tipo === 'vehiculo') document.getElementById('vehiculoId').value = '';
+    if (tipo === 'preventivo') { document.getElementById('prevId').value = ''; cargarSelectsPreventivos(); }
+    if (tipo === 'correctivo') { document.getElementById('corrId').value = ''; cargarSelectsCorrectivos(); }
+}
+
+function ocultarFormulario(tipo) {
+    const map = {
+        vehiculo: 'vehiculoForm',
+        preventivo: 'preventivoForm',
+        correctivo: 'correctivoForm',
+        usuario: 'usuarioForm'
+    };
+    const el = document.getElementById(map[tipo]);
+    if (el) el.classList.add('hidden');
+}
+
+// ============================================================
+// 14. INICIO (cargar todo)
 // ============================================================
 function cargarTodosLosDatos() {
     cargarVehiculos();
     cargarPreventivos();
     cargarCorrectivos();
     cargarOrdenes();
-    cargarHistorial();
     cargarReportes();
     cargarAlertas();
     cargarUsuarios();
 }
 
-// ============================================================
-// 8. SECCIONES RESTANTES (PREVENTIVOS, CORRECTIVOS, ÓRDENES, ETC.)
-// ============================================================
-// ... (implementa las funciones faltantes siguiendo el mismo patrón: obtener datos de localStorage, renderizar, guardar, editar, eliminar)
+// Exponer funciones globales (para los onclick en HTML)
+window.showLogin = showLogin;
+window.showRegister = showRegister;
+window.login = login;
+window.register = register;
+window.logout = logout;
+window.showSection = showSection;
+window.mostrarFormulario = mostrarFormulario;
+window.ocultarFormulario = ocultarFormulario;
+window.guardarVehiculo = guardarVehiculo;
+window.editarVehiculo = editarVehiculo;
+window.eliminarVehiculo = eliminarVehiculo;
+window.guardarPreventivo = guardarPreventivo;
+window.editarPreventivo = editarPreventivo;
+window.eliminarPreventivo = eliminarPreventivo;
+window.guardarCorrectivo = guardarCorrectivo;
+window.editarCorrectivo = editarCorrectivo;
+window.eliminarCorrectivo = eliminarCorrectivo;
+window.asignarOrden = asignarOrden;
+window.cambiarEstadoOrden = cambiarEstadoOrden;
+window.eliminarOrden = eliminarOrden;
+window.cargarHistorial = cargarHistorial;
+window.guardarUsuario = guardarUsuario;
+window.eliminarUsuario = eliminarUsuario;
 
 // ============================================================
-// 9. INICIO AUTOMÁTICO
+// 15. CARGAR AUTOMÁTICAMENTE AL INICIAR
 // ============================================================
-// Si hay una sesión activa, mostramos el dashboard
-// (para simplificar, siempre mostramos login)
+document.addEventListener('DOMContentLoaded', function() {
+    // Verificar si hay usuario guardado en sesión (simplificado: siempre mostrar login)
+    // Si quieres mantener sesión, puedes usar sessionStorage, pero lo dejamos simple.
+});
 </script>
 </body>
 </html>
